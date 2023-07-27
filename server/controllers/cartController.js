@@ -1,9 +1,33 @@
 const asyncHandler = require('express-async-handler')
+const mongoose = require('mongoose')
 const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY)
+const UserP = require('../models/userModel')
+const Cart = require('../models/cartModel')
+
+
+// get cart -- if user logged in get cart
+const getCart = asyncHandler(async(req, res) => {
+    try {
+        console.log(req.user)
+        const userId = new mongoose.Types.ObjectId(req.user._id)
+        const cartito = await Cart.find({user: userId})
+        console.log(cartito)
+        res.status(200).json(req.user)
+    } catch (e) {
+        res.status(500).json({error: e.message})
+    }
+    
+
+})
+
+// update cart--- add and delete items 
+const updateCart = asyncHandler(async (req, res) => {
+    
+})
+
 
 
 // checkout with stripe
-
 const checkout = asyncHandler(async (req, res) => {
     console.log(req.body)
     try{
@@ -44,5 +68,5 @@ const checkout = asyncHandler(async (req, res) => {
 })
 
 module.exports = {
-    checkout,
+    checkout, getCart, updateCart
 }
