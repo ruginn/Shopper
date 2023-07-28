@@ -59,7 +59,8 @@ const loginUser = asyncHandler(async (req, res) =>{
         res.json({
             firstName: user.firstName,
             lastName: user.lastName, 
-            email: user.email
+            email: user.email,
+            token
         })
     } else{
         res.status(400).json('Incorrect email or password')

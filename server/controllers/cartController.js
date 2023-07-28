@@ -10,9 +10,8 @@ const getCart = asyncHandler(async(req, res) => {
     try {
         console.log(req.user)
         const userId = new mongoose.Types.ObjectId(req.user._id)
-        const cartito = await Cart.find({user: userId})
-        console.log(cartito)
-        res.status(200).json(req.user)
+        const cartito = await Cart.findOne({user: userId})
+        res.status(200).json(cartito)
     } catch (e) {
         res.status(500).json({error: e.message})
     }
@@ -22,7 +21,16 @@ const getCart = asyncHandler(async(req, res) => {
 
 // update cart--- add and delete items 
 const updateCart = asyncHandler(async (req, res) => {
-    
+    try {
+        const userId = new mongoose.Types.ObjectId(req.user._id)
+        const cart = await Cart.findOne({user: userId})
+        console.log(req.body)
+        await cart.updateOne({cartItems: req.body})
+        const updatedCart = await Cart.findOne({user: userId})
+        res.status(200).json(updatedCart.cartItems)
+    } catch (e) {
+        res.status(500).json({error: e.message})
+    }
 })
 
 
