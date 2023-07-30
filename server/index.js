@@ -10,6 +10,9 @@ connectDB()
 
 const app = express()
 app.use(cors())
+app.use(express.static('public'))
+
+  
 app.use(express.json({extended: true, limit: '10000kb'}))
 app.use(express.urlencoded({extended: true, limit: '10000kb'}))
 

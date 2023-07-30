@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler')
 const mongoose = require('mongoose')
-const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY)
+const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY)
 const UserP = require('../models/userModel')
 const Cart = require('../models/cartModel')
 
@@ -33,47 +33,41 @@ const updateCart = asyncHandler(async (req, res) => {
     }
 })
 
-
+const storeItems = new Map([
+    [1, { priceInCents: 10000, name: "Learn React Today" }],
+    [2, { priceInCents: 20000, name: "Learn CSS Today" }],
+  ])
 
 // checkout with stripe
 const checkout = asyncHandler(async (req, res) => {
     console.log(req.body)
-    try{
+    
+    try {
         const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
-            // line_items: req.body.map((element) => {
-            //     return {
-            //         price_data: {
-            //             currency: 'usd', 
-            //             product_data: {
-            //                 name: element.name
-            //             }, 
-            //             unit_amount: element.unitCost
-            //         }, 
-            //         quantity: element.qtyData
-            //     }
-            // }), 
-            line_items: {
-                price_data: {
-                    currency: 'usd', 
-                    product_data: {
-                        name:'jesf'
-                    }, 
-                    unit_amount: 1.99
+          payment_method_types: ["card"],
+          mode: "payment",
+          line_items: req.body.map(item => {
+            const storeItem = storeItems.get(item.id)
+            let cost = item.unitCost * 100
+            return {
+              price_data: {
+                currency: "usd",
+                product_data: {
+                  name: item.name,
                 },
-                quantity: 3
-            },
-            mode: 'payment', 
-            success_url: `${process.env.CLIENT_URL}/success.html`,
-            cancel_url: `${process.env.CLIENT_URL}/cancel.html`
+                unit_amount: cost,
+              },
+              quantity: item.qtyData,
+            }
+          }),
+          success_url: `${process.env.CLIENT_URL}/cart`,
+          cancel_url: `${process.env.CLIENT_URL}/cart`,
         })
-        console.log(session.line_items)
-        res.json({url: session.url})
-    } catch (e){
-        res.status(500).json({error: e.message})
-
-    }
-})
+        res.send({ url: session.url })
+      } catch (e) {
+        res.status(500).json({ error: e.message })
+      }
+    })
 
 module.exports = {
     checkout, getCart, updateCart
