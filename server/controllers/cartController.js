@@ -48,7 +48,7 @@ const checkout = asyncHandler(async (req, res) => {
           mode: "payment",
           line_items: req.body.map(item => {
             const storeItem = storeItems.get(item.id)
-            let cost = item.unitCost * 100
+            let cost = Math.round(item.unitCost * 100)
             return {
               price_data: {
                 currency: "usd",
